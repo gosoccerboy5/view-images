@@ -3,16 +3,16 @@
     <head>
         <title>View images</title>
         <meta charset="utf-8">
+        <meta name="viewpoint" content="width=device-width, initial-scale=1">
         <link rel = "stylesheet" type="text/css" href="assets/css/stylesheet.css">
     </head>
     <body>
         <h1>View images</h1>
-        <!-- The hash at the end of a URL is offically called a fragment identifier. -->
         <h2>Paste a url into the box below, or use a fragment identifier (like <small>https://gosoccerboy5.github.io/view-images#http://example.com/image.png</small>)</h2>
         <input id="input" size="70"> <button id="copy">Copy as url</button>
         <br>
         <br>
-        <img id="output">
+        <img id="output" src="about:blank" alt="Invalid image URL." width="auto" height="auto">
         <br><br><br>
         <a href="https://gosoccerboy5.github.io">Home</a> | This page is open source. <a href="https://github.com/gosoccerboy5/view-images">Improve this page.</a>
         <script>
@@ -22,8 +22,16 @@
             const button = document.querySelector("#copy");
             input.onkeyup = function(event) {
                 if (event.keyCode === 13 && input.value !== "") {
+                    location.hash = input.value
                     output.style.display = "inline";
-                    output.src = input.value;
+                    output.src = input.value; // For some reson using the hash variable didn't work.
+                    output.onload = function() {
+                        if (output.naturalWidth > (95 / 100) * window.innerWidth) { // Check if the image is wider than 95% of the window's width
+                            output.style.width="95%";
+                        } else {
+                            output.style.width="auto";
+                        }
+                    }
                 }
             };
             input.focus();
