@@ -8,7 +8,7 @@
     </head>
     <body>
         <h1>View images</h1>
-        <h2>Paste a url into the box below, or use a fragment identifier (like <small>https://gosoccerboy5.github.io/view-images#http://example.com/image.png</small>)</h2>
+        <h2>Paste a url into the box below, or use a URL fragment (like <small>https://gosoccerboy5.github.io/view-images#http://example.com/image.png</small>)</h2>
         <input id="input" size="70"> <button id="copy">Copy as url</button>
         <br>
         <br>
@@ -20,11 +20,15 @@
             const input = document.querySelector("#input");
             const output = document.querySelector("#output");
             const button = document.querySelector("#copy");
+            let param = getUrlVars()['url'];
+            if (param !== undefined) {
+                window.location = "https://gosoccerboy5.github.io/view-images#"+param;
+            }
             input.onkeyup = function(event) {
                 if (event.keyCode === 13 && input.value !== "") {
                     location.hash = input.value
-                    output.style.display = "inline";
                     output.src = input.value; // For some reson using the hash variable didn't work.
+                    output.style.display = "inline";
                     output.onload = function() {
                         if (output.naturalWidth > (95 / 100) * window.innerWidth) { // Check if the image is wider than 95% of the window's width
                             output.style.width="95%";
@@ -46,6 +50,13 @@
                 document.execCommand("copy");
                 input.value = oldValue;
             });
+            function getUrlVars() {
+		        var vars = {};
+		        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+			        vars[key] = value;
+		        });
+		        return vars;
+	        }
         </script>
     </body>
 </html>
