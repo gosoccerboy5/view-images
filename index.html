@@ -1,55 +1,76 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>View images</title>
+        <title>Image Viewer</title>
         <meta charset="utf-8">
         <meta name="viewpoint" content="width=device-width, initial-scale=1">
         <link rel = "stylesheet" type="text/css" href="assets/css/stylesheet.css">
     </head>
     <body>
-        <h1>View images</h1>
-        <h2>Paste a url into the box below, or use a URL fragment (like <small>https://gosoccerboy5.github.io/view-images#http://example.com/image.png</small>)</h2>
-        <input id="input" size="70"> <button id="copy">Copy as url</button>
-        <br>
-        <br>
-        <img id="output" src="about:blank" alt="Invalid image URL." width="auto" height="auto">
-        <br><br><br>
-        <a href="https://gosoccerboy5.github.io">Home</a> | This page is open source. <a href="https://github.com/gosoccerboy5/view-images">Improve this page.</a>
+        <div class="main" id="main">
+            <h1>Image Viewer</h1>
+            <h2>Paste an image url into the box below, or use a URL fragment (like <small>https://gosoccerboy5.github.io/view-images/#http://example.com/image.png</small>)</h2>
+            <input id="input" size="70"> <button id="copy">Copy as url</button>
+            <br><br><br>
+            <a href=https://gosoccerboy5.github.io>Home</a> | This page is open source. <a href="https://github.com/gosoccerboy5/view-images/">Improve this page.</a>
+        </div>
+        <div class="view" id="view">
+            <img class="output" id="output" src="about:blank" alt="Invalid image URL." width="auto" height="auto">
+        </div>
         <script>
-            const hash = location.hash.slice(1); // location.hash returns "#http://example.com/image.png", so I used slice() to remove the hash.
+            var hash = location.hash.slice(1);
             const input = document.querySelector("#input");
             const output = document.querySelector("#output");
             const button = document.querySelector("#copy");
+            const main = document.querySelector("#main");
+            const view = document.querySelector("#view");
             let param = getUrlVars()['url'];
             if (param !== undefined) {
-                window.location = "https://gosoccerboy5.github.io/view-images#"+decodeURIComponent(param);
+                window.location = "https://gosoccerboy5.github.io/view-images/#"+decodeURIComponent(param);
             }
             input.onkeyup = function(event) {
                 if (event.keyCode === 13 && input.value !== "") {
-                    location.hash = input.value
-                    output.src = input.value; // For some reson using the hash variable didn't work.
-                    output.style.display = "inline";
-                    output.onload = function() {
-                        if (output.naturalWidth > (95 / 100) * window.innerWidth) { // Check if the image is wider than 95% of the window's width
-                            output.style.width="95%";
-                        } else {
-                            output.style.width="auto";
-                        }
-                    }
+                    location.hash = input.value;
                 }
             };
+            update();
             input.focus();
-            if (hash !== undefined) {
-                input.value = hash;
-                input.onkeyup({keyCode: 13});
-            }
+            input.value = hash;
+            window.addEventListener("hashchange", function() {
+                update();
+            });
             button.addEventListener("click", function() {
                 let oldValue = input.value;
-                input.value = "https://gosoccerboy5.github.io/view-images#" + oldValue;
+                input.value = "https://gosoccerboy5.github.io/view-images/#" + oldValue;
                 input.select();
                 document.execCommand("copy");
                 input.value = oldValue;
             });
+            output.addEventListener("error", function() {
+                if (hash !== undefined && hash !== "") {
+                    view.style.display = 'none';
+                    alert("The image you tried to view failed to load.")
+                }
+            });
+            function update() {
+                hash = location.hash.slice(1);
+                hash = decodeURIComponent(hash);
+                if (hash === undefined || hash === "") {
+                    output.src = 'about:blank';
+                    view.style.display = 'none';
+                    main.style.display = 'inline';
+                    document.body.style.background = '#d0f6ff';
+                } else {
+                    if (hash.includes('http://') || hash.includes('https://') || hash.includes('file:///')) {
+                        output.src = hash;
+                    }else{
+                        output.src = 'https://'+hash;
+                    }
+                    main.style.display = 'none';
+                    view.style.display = 'flex';
+                    document.body.style.background = '#222222';
+                }
+            }
             function getUrlVars() {
                 var vars = {};
                 var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
